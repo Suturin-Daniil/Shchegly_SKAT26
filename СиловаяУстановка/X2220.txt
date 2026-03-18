@@ -1,0 +1,3 @@
+kv	resistance	idlecur	mass
+980	0.0510	0.7	0.085
+1400	0.0290	1.5	0.085
