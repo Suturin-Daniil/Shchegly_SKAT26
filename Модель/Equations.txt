@@ -1,2 +1,0 @@
-﻿"TrackerMass"= 100'judges tracker mass
-"CargoMass"= 250'mass of cargo
