@@ -1,7 +1,11 @@
 -- usb adapter подключен к uart4, необходимые изменения параметров:
 -- uart4 (serial6), uart8 (serial5): user logic, 5v tolerent
--- SERIAL4_BAUD = 115 (115200)
--- SERIAL4_PROTOCOL = 28 (Scripting)
+-- SERIAL6_BAUD = 115 (115200)
+-- SERIAL6_PROTOCOL = 28 (Scripting)
+-- PROTOCOL = 28 должен быть только на 1 порту (сейчас uart4)
+
+-- Дополнительно проверить:
+-- SCR_ENABLE = 1
 
 local CONFIG = {
     UART_PORT = 0,
@@ -14,18 +18,41 @@ function send_telemetry()
     if not uart then return end
 
     local pos = get_position()
-    if not pos then return end
     local airspeed = get_airspeed()
 
-    local msg = string.format(
-        "POS,%.7f,%.7f,%.2f,%.2f\n",
-        pos.lat,
-        pos.lng,
-        pos.alt,
-        airspeed or -1
-    )
+    local msg
 
-    uart:write(msg)
+    if pos and airspeed then
+        msg = string.format(
+            "POS,%.7f,%.7f,%.2f,%.2f\n",
+            pos.lat,
+            pos.lng,
+            pos.alt,
+            airspeed or -1
+        )
+    elseif pos then
+        msg = string.format(
+            "POS,%.7f,%.7f,%.2f\n",
+            pos.lat,
+            pos.lng,
+            pos.alt
+        )
+    elseif airspeed then
+        msg = string.format(
+            "AS,%.2f\n",
+            airspeed or -1
+        )
+    else
+        msg = "NO_DATA\n"
+    end
+
+    uart_write_string(uart, msg)
+end
+
+function uart_write_string(uart, str)
+    for i = 1, #str do
+        uart:write(string.byte(str, i))
+    end
 end
 
 function get_position()

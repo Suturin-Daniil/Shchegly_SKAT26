@@ -1,0 +1,51 @@
+UART: 115200
+бинарный формат
+little-endian
+MAVLink-подобный
+
+Формат кадра (по мотивам MAVLink):
+[magic][len][incompat_flags][compat_flags][seq][sysid][compid][msgid0][msgid1][msgid2][payload ...][crc_l][crc_h]
+
+magic           - uint8     - стартовый байт (0xFD)
+len             - uint8     - длина payload в байтах
+incompat_flags  - uint8     - несовместимые флаги (0x00)
+compat_flags    - uint8     - совместимые флаги (0x00)
+seq             - uint8     - номер пакета (0...255)
+sysid           - uint8     - идентификатор системы
+compid          - uint8     - идентификатор компонента (1-автопилот, 200-вычислитель)
+msgid0          - uint8     - младший байт идентификатора сообщения
+msgid1          - uint8     - средний байт идентификатора сообщения
+msgid2          - uint8     - старший байт идентификатора сообщения
+payload         - uint8*len - данные
+crc_l           - uint8     - младший байт CRC (поле magic в CRC не включается)
+crc_h           - uint8     - старший байт CRC
+
+Типы сообщений:
+NAV_DATA         - msgid=20000
+HEARTBEAT_CUSTOM - msgid=20001
+DROP_COMMAND     - msgid=20010
+ACK_CUSTOM       - msgid=20011
+
+Payload NAV_DATA:
+timestamp_ms   - uint32
+lat_e7         - int32
+lon_e7         - int32
+alt_mm         - int32
+roll_rad       - int16
+pitch_rad      - int16
+yaw_rad        - uint16
+vn_cms         - int16
+ve_cms         - int16
+vd_cms         - int16
+gps_status     - uint8
+flags          - uint8
+
+Поле Flags:
+POS_VALID - координаты валидны
+ATT_VALID - ориентация валидна
+VEL_VALID - скорости валидны
+AS_VALID  - airspeed валиден
+GPS_VALID - GPS валиден
+ARMED     - система армирована
+IN_AIR    - ЛА находится в воздухе
+RESERVED  - резерв
